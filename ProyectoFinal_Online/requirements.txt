@@ -1,0 +1,7 @@
+streamlit
+pymongo
+pandas
+fpdf
+matplotlib
+bcrypt
+stdiomask
