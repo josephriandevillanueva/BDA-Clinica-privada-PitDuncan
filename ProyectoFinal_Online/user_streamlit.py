@@ -9,8 +9,6 @@ class users:
 
         try:
             cliente, colecciones = conectar(**connmongop)
-            #usuario = input("inserte el nuevo nombre de ususario: ")
-            #password = input("cree una contraseña: ")
 
             bytes = password.encode('utf-8')#lo convierte en un arreglo de bytes
             salt = bcrypt.gensalt()# esto es una cadena aleatoria que se le agrega al final en caso de que logren atravesar el hasheo
@@ -22,12 +20,14 @@ class users:
                 "activo": True 
             }
 
-            colecciones['usuarios'].insert_one(user)
-            print("insertado")
+            res = colecciones['usuarios'].insert_one(user)
+            
+            if res:
+                return True
 
         except Exception as e:
             print(f"ERROR: {e}")
-            return None
+            return False
 
     def dar_de_baja(self,usuario):
         try:
@@ -43,14 +43,12 @@ class users:
                 filtro = {"user": usuario}
                 act = {"$set": {"activo": "False"}}
                 res = colecciones['usuarios'].update_one(filtro,act)
-                if res.matched_count == 0:
-                    print("record invalido")
-                else:
-                    print(f"{usuario} ha sido dado de baja")
+                if res:
+                    return True
 
         except Exception as e:
             print(f"ERROR: {e}")
-            return None
+            return False
     
 
 

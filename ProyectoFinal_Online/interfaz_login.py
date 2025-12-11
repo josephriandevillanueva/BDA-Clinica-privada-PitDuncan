@@ -4,8 +4,8 @@ from user_streamlit import users
 def interfaz_login():
 
     st.title("LOGIN")
-    user = st.text_input("Ingrese su nombre de usuario")
-    password = st.text_input("Ingrese su contraseña", type="password")
+    user = st.text_input("Ingrese su nombre de usuario").strip()
+    password = st.text_input("Ingrese su contraseña", type="password").strip()
     
 
     if st.button("Iniciar sesion"):

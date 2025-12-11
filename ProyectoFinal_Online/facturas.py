@@ -1,13 +1,17 @@
+#Aqui llamamos a otros archivos y sus funciones y otras librerias
 from conectar_clinica import conectar, connmongop
 from datetime import datetime
 
 class facturas:
+    #Funcion para guardar facturas
     def guardar_factura(self, paciente_nombre, doctor_nombre, concepto, costo, archivo_pdf):
         try:
+            #conectamos a la BD
             cliente, colecciones = conectar(**connmongop)
             
+            #hacemos un diccionario para poder insertar mas facil en la BD
             nueva_factura = {
-                "fecha_emision": datetime.now(),
+                "fecha_emision": datetime.now(), #.now() sirve para poder guardar la fecha de hoy
                 "paciente": paciente_nombre,
                 "doctor": doctor_nombre,
                 "concepto": concepto,
@@ -15,22 +19,13 @@ class facturas:
                 "archivo_pdf": archivo_pdf,  
                 "estado": "Pagada"            
             }
-
+            #Insertamos la factura
             res = colecciones['facturas'].insert_one(nueva_factura)
             
-            if res.inserted_id:
+            #dependiendo si se inserto bien regresa true en caso de que algo falle retorna false, esto sirve para mandar mensajes a la interfaz
+            if res:
                 return True
-            else:
-                return False
 
         except Exception as e:
             print(f"Error al guardar factura: {e}")
             return False
-
-    def consultar_facturas_paciente(self, nombre_paciente):
-        try:
-            cliente, colecciones = conectar(**connmongop)
-            cursor = colecciones['facturas'].find({"paciente": nombre_paciente})
-            return list(cursor)
-        except:
-            return []

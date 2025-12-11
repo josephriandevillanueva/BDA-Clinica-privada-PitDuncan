@@ -5,16 +5,19 @@ from interfaces_menu_doc import generar_recetita,generar_factura,menu
 from interfaces_menu_inv import menu_inv,comprar_medicina
 from interfaz_citas import menu_citas
 from interfaz_login import interfaz_login
+import os
 # 1. Inicializamos el estado (memoria) si no existe
 if 'vista_actual' not in st.session_state:
     st.session_state['vista_actual'] = 'menu_principal'
 
 def main():
-    try:
-        pathlogo = r"C:\Users\jonyx\OneDrive\Documentos\Universidad\Semestre 9\BDA\proyecto final V3.5\logo3.png"
-        st.sidebar.image(pathlogo, width=200)
-    except:
-        pass
+    carpeta = os.path.dirname(os.path.abspath(__file__))
+    ruta = os.path.join(carpeta,"logo3.png")
+
+    if os.path.exists(ruta):
+        st.sidebar.image(ruta,width=200)
+    else:
+        st.sidebar.error("No se encontro la imagen.")
     
     with st.sidebar.container(border=True):
         st.markdown("**Informacion de la clinica**")

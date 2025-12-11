@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime
+import datetime
 from citas import agendar_citas
 
 def menu_citas(aux):
@@ -12,16 +12,17 @@ def menu_citas(aux):
 
         with st.form("formulario_citas"):
             
-            nombre = st.text_input("Ingrese su nombre:")
-            especialista = st.text_input("Ingrese el especialista que necesita (ej: Dermatologo):")
+            nombre = st.text_input("Ingrese su nombre completo:",placeholder="ej. Marisol Camarillo Temich").strip()
+            especialista = st.text_input("Ingrese el especialista que necesita:",placeholder="ej. Dermatologo").strip()
 
             col1, col2 = st.columns(2)
             
             with col1:
-                fecha = st.date_input("Fecha de la cita")
+                hoy = datetime.date.today()
+                fecha = st.date_input("Fecha de la cita",value=hoy,format="DD/MM/YYYY")
             
             with col2:
-                hora = st.time_input("Hora", step=1800) 
+                hora = st.time_input("Hora",step=1800) 
 
             enviado = st.form_submit_button("Agendar")
 
@@ -29,7 +30,7 @@ def menu_citas(aux):
             if not nombre or not especialista:
                 st.error("Por favor complete todos los campos")
             else:
-                fecha_hora_mongo = datetime.combine(fecha, hora)
+                fecha_hora_mongo = datetime.datetime.combine(fecha, hora)
                 ag = agendar_citas()
                 resultado = ag.generar_cita(nombre,especialista,fecha_hora_mongo)
 
