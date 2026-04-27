@@ -1,0 +1,443 @@
+import streamlit as st
+import pandas as pd
+from src.services.users import users
+from src.services.inventario import inventario
+from fpdf import FPDF
+import datetime
+
+def menu_inv(verficacion):
+    st.title("Inventario")
+
+    pes1, pes2, pes3 = st.tabs(["Stock", "Certificaciones","Ingresar material"])
+
+    with pes1:
+        st.header("Stock de la clinica")
+
+        with st.form("formulario_stock"):
+
+            medicamento = st.text_input("Ingrese el nombre del medicamento o inicial.").strip()
+            stk = st.number_input("Ingrese el numero de Stock.")
+
+            col1,col2,col3,col4 = st.columns(4)
+            with col1:
+                bt_one = st.form_submit_button("Ver producto")
+            with col2:
+                bt_all = st.form_submit_button("Ver Stock Completo")
+            with col3:
+                mayq = st.form_submit_button("Stock mayor o igual que")
+            with col4:
+                menq = st.form_submit_button("Stock menor o igual que")
+            
+            if bt_one:
+                if not medicamento:
+                    st.warning("Ingrese al menos una inicial.")
+                else:
+                    up = inventario()
+                    auxone = True
+                    result = up.consultar_producto(medicamento,auxone)
+                    
+                    if len(result) >0:
+                        one = pd.DataFrame(result)
+                        one = one[["nombre","stock_total","descripcion","presentacion","marca","precio por unidad"]]
+                        st.dataframe(one, use_container_width=True,hide_index=True)
+
+                    else:
+                       st.error("No se encontro ningun producto con esa/s inicial/es.")
+
+            if bt_all:
+                i = inventario()
+                auxsk1 = True
+                resultado = i.consultar_stock(auxsk1)
+
+                if len(resultado) >0:
+                    df = pd.DataFrame(resultado)
+                    df = df[["nombre","stock_total","descripcion","presentacion","marca","precio por unidad"]]
+                    st.dataframe(df, use_container_width=True,hide_index=True)
+
+                else:
+                   st.error("Stock vacio.")
+
+            if mayq:
+                mayq = inventario()
+                resultado = mayq.stock_mayor(stk)
+
+                if len(resultado) >0:
+                    df = pd.DataFrame(resultado)
+                    df = df[["nombre","stock_total","descripcion","presentacion","marca","precio por unidad"]]
+                    st.dataframe(df, use_container_width=True,hide_index=True)
+
+                else:
+                   st.error("Stock vacio.")
+
+            if menq:
+                menq = inventario()
+                resultado = menq.stock_menor(stk)
+
+                if len(resultado) >0:
+                    df = pd.DataFrame(resultado)
+                    df = df[["nombre","stock_total","descripcion","presentacion","marca","precio por unidad"]]
+                    st.dataframe(df, use_container_width=True,hide_index=True)
+                else:
+                   st.error("Stock vacio.")
+    with pes2:
+        st.header("Certificaciones")
+
+        i = inventario()
+
+        resultado = i.consultar_certificaciones()
+
+        if len(resultado) >0:
+            st.dataframe(resultado, use_container_width=True)
+
+        else:
+            st.warning("No hay certificaciones que mostrar.")
+
+    with pes3:
+        if verficacion:
+            st.header("Registrar medicamento.")
+            with st.form("formulario_medicina"):
+                recet = ["Si","No"]
+                diccionario = {
+                    "Si":True,
+                    "No":False
+                }
+                st.write("Datos del medicamento")
+
+                colnom,colsus = st.columns(2)
+                with colnom:
+                    nombre = st.text_input("Ingrese el nombre del medicamento.").strip()
+                    descripcion = st.text_input("Descripción").strip()
+                    unidad = st.text_input("Unidad de medida (ej:caja,frasco,etc.)").strip()
+                    cod_b = st.text_input("Codigo de barras").strip()
+                    stock_t = st.number_input("Stock total")
+                with colsus:
+                    sustancia = st.text_input("Ingrese el nombre de la sustancia activa.").strip()
+                    presentacion = st.text_input("Presentacion (ej: Frasco con 60 tabletas.)").strip()
+                    marca = st.text_input("Marca").strip()
+                    recetado = st.selectbox("Necesita receta",recet)
+                    recetado_fin = diccionario[recetado]
+                    precio = st.number_input("Precio por unidad")
+
+                st.write("Datos del Lote")
+                hoy = datetime.date.today()
+                clot,fccol,cntcol = st.columns(3)
+                with clot:
+                    cod_lot = st.text_input("Codigo de lote").strip()
+                with fccol:
+                    fecha_cad = st.date_input("Fecha de caducidad",value=hoy,min_value=hoy,format="DD/MM/YYYY")
+                with cntcol:
+                    cnt_dis = st.text_input("Cantidad disponible").strip()
+
+                st.write("Datos del proveedor")
+                colprov, colempro = st.columns(2)
+                with colprov:
+                    prov = st.text_input("Nombre del Proveedor").strip()
+                with colempro:
+                    em_prov = st.text_input("Email proveedor").strip()
+
+                btn_insert = st.form_submit_button("Insertar medicamento.")
+                if btn_insert:
+                    if cod_b.isdigit() and nombre and descripcion and unidad and cod_b and stock_t and sustancia and presentacion and marca and recetado and precio:
+                        i = inventario()
+                        resultado = i.agregar_medicamento(nombre,sustancia,descripcion,presentacion,marca,cod_b,recet,recetado_fin,stock_t,unidad,precio, 
+                                                            cod_lot,fecha_cad,cnt_dis,prov,em_prov)
+
+                        if resultado==True:
+                            st.success("Medicamento agregado de forma exitosa.")
+                        else:
+                            st.error("No se puedo agregar el medicamento")
+                    else:
+                        st.warning("Favor de llenar los campos de forma correcta.")
+        else:
+            st.write("Lo siento este apartado solo esta disponible para administradores.")
+
+def comprar_medicina():
+    if 'carrito' not in st.session_state:
+        st.session_state.carrito = []
+
+    st.title("Farmacia Pit Duncan")
+    pest1,pest2 = st.tabs(["Tienda","Carrito"])
+    
+    with pest1:
+        st.header("Tienda")
+        
+        # Obtener lista de medicinas disponibles
+        i = inventario()
+        auxsk = False
+        resultado = i.consultar_stock(auxsk)
+        nombres_medicamentos = []
+        if len(resultado) > 0:
+            df_stock = pd.DataFrame(resultado)
+            df_stock = df_stock[["nombre","descripcion","presentacion","marca","precio por unidad"]]
+            nombres_medicamentos = df_stock["nombre"].tolist()
+        else:
+            df_stock = pd.DataFrame()
+
+        with st.form("formulario_comprar_med"):
+            st.subheader("Agregar al carrito")
+            nom_medicamento = st.selectbox("Nombre del medicamento a comprar.", options=[""] + nombres_medicamentos)
+            cantidad = st.number_input("Ingrese la cantidad a comprar.", min_value=1, step=1)
+            btn_agregar = st.form_submit_button("Agregar al carrito")
+
+            if btn_agregar:
+                if nom_medicamento and cantidad > 0:
+                    up = inventario()
+                    auxone1 = True
+                    result = up.consultar_producto(nom_medicamento, auxone1)
+
+                    if result:
+                        dato = list(result)[0]
+                        precio = float(dato['precio por unidad'])
+                        cant = int(cantidad)
+                        subtotal = precio * cant
+
+                        # Revisar si ya existe en el carrito para sumar la cantidad
+                        encontrado = False
+                        for idx, item in enumerate(st.session_state.carrito):
+                            if item["producto"] == dato['nombre']:
+                                st.session_state.carrito[idx]["cantidad a comprar"] += cant
+                                st.session_state.carrito[idx]["subtotal"] = st.session_state.carrito[idx]["cantidad a comprar"] * st.session_state.carrito[idx]["precio por unidad"]
+                                encontrado = True
+                                break
+                        
+                        if not encontrado:
+                            prod_carrito = {
+                                    "producto": dato['nombre'],
+                                    "descripcion": dato['descripcion'],
+                                    "presentacion": dato['presentacion'],
+                                    "marca": dato['marca'],
+                                    "precio por unidad": precio,
+                                    "cantidad a comprar": cant,
+                                    "subtotal": subtotal
+                            }
+                            st.session_state.carrito.append(prod_carrito)
+                        st.toast("Se agregó el producto al carrito.")
+                    else: 
+                        st.error("No se encontró el producto")
+                else:
+                    st.warning("Favor de seleccionar un medicamento y una cantidad válida.")
+
+        st.markdown("---")
+        st.subheader("Catálogo de Medicinas")
+        filtro_stock = st.text_input("🔍 Buscar medicamento por nombre...").strip()
+        
+        if not df_stock.empty:
+            df_mostrar = df_stock
+            if filtro_stock:
+                df_mostrar = df_stock[df_stock["nombre"].str.contains(filtro_stock, case=False, na=False)]
+            st.dataframe(df_mostrar, use_container_width=True, hide_index=True)
+        else:
+            st.warning("No hay medicamentos disponibles en este momento.")
+    
+    if 'pdf_efectivo_listo' not in st.session_state:
+        st.session_state.pdf_efectivo_listo = None
+
+    if 'pdf_plinea_listo' not in st.session_state:
+        st.session_state.pdf_plinea_listo = None
+
+    with pest2:
+        st.header("Carrito")
+
+        if len(st.session_state.carrito)>0:
+            # Renderizar el carrito de forma editable
+            st.subheader("Productos en el carrito")
+            
+            for idx, item in enumerate(st.session_state.carrito):
+                c1, c2, c3, c4 = st.columns([3, 2, 2, 1])
+                with c1:
+                    st.write(f"**{item['producto']}**")
+                    st.caption(item['presentacion'])
+                with c2:
+                    # Input para modificar cantidad directamente
+                    nueva_cant = st.number_input("Cantidad", key=f"cant_{idx}", min_value=1, value=item['cantidad a comprar'], step=1)
+                    if nueva_cant != item['cantidad a comprar']:
+                        st.session_state.carrito[idx]['cantidad a comprar'] = nueva_cant
+                        st.session_state.carrito[idx]['subtotal'] = nueva_cant * item['precio por unidad']
+                        st.rerun()
+                with c3:
+                    st.write(f"${item['subtotal']:,.2f}")
+                with c4:
+                    if st.button("🗑️", key=f"eliminar_{idx}"):
+                        st.session_state.carrito.pop(idx)
+                        st.rerun()
+            
+            st.markdown("---")
+
+            df_carrito = pd.DataFrame(st.session_state.carrito)
+            if not df_carrito.empty:
+                total = df_carrito['subtotal'].sum()
+            else:
+                total = 0.0
+                
+            st.write(f"### Total: ${total:,.2f}")
+
+            if st.button("Vaciar carrito"):
+                st.session_state.carrito = []
+                st.rerun()
+
+            st.markdown("---")
+            st.subheader("Pagos")
+            
+            # Subida de receta fuera del form para que no cause problemas con submits
+            st.write("**Receta Médica (Requerida si algún medicamento lo necesita)**")
+            receta_pdf = st.file_uploader("Sube tu receta en formato PDF", type=["pdf"])
+
+            with st.form("Pagos"):
+                pesta1,pesta2 = st.tabs(["Pago en linea","Pago en efectivo"])
+                hoy = datetime.date.today()
+                with pesta1:
+
+                    num_tarjeta = st.text_input("Numero de tarjeta (16 dígitos)").strip()
+                    nom_prop = st.text_input("Nombre del propietario").strip()
+
+                    column1, column2, column3 = st.columns([1, 1, 2])
+
+                    with column1:
+                        mes_cad = st.selectbox("Mes de caducidad", range(1, 13))
+                    
+                    with column2:
+                        anio_cad = st.selectbox("Año de caducidad", range(hoy.year, hoy.year + 10))
+
+                    with column3:
+                        cvv = st.text_input("Ingrese CVV").strip()
+
+                    btn_linea = st.form_submit_button("Pagar")
+
+                    if btn_linea:
+                        if not (num_tarjeta.isdigit() and len(num_tarjeta) == 16):
+                            st.error("Este número de tarjeta no es válido. Debe contener 16 dígitos numéricos.")
+                        elif not nom_prop:
+                            st.error("Favor de ingresar el nombre del propietario de la tarjeta.")
+                        elif not (cvv.isdigit() and len(cvv) == 3):
+                            st.error("El CVV no es válido. Debe contener 3 dígitos numéricos.")
+                        else:
+                            i = inventario()
+                            
+                            for index,row in df_carrito.iterrows():
+                                prod = row['producto']
+                                canti = row['cantidad a comprar']
+
+                                resultado = i.min_stock(prod,canti)
+
+                                if resultado == True:
+                                    
+                                    pdf_bytes_ln = generar_ticket_pdf(
+                                        carrito=st.session_state.carrito,
+                                        total=total,
+                                        tipo_pago="Pago en linea",
+                                    )
+
+                                    st.session_state.pdf_plinea_listo = pdf_bytes_ln
+                                    st.success("Compra realizada favor de descargar su ticket.")
+
+                                #st.session_state.carrito = []
+                                else:
+                                    st.error("Error al procesar su compra, porfavor intentelo mas tarde.")
+
+                with pesta2:
+                    btn_efe = st.form_submit_button("Hacer orden",key="btn_bajo")
+                    if btn_efe:
+                                        
+                        pdf_bytes_efe = generar_ticket_pdf(
+                            carrito=st.session_state.carrito,
+                            total=total,
+                            tipo_pago="Pago en efectivo",
+                        )
+
+                        st.session_state.pdf_efectivo_listo = pdf_bytes_efe
+                        st.success("Orden generada, por favor descargar el PDF.")
+
+            col_descargas1, col_descargas2 = st.columns(2)
+        
+            with col_descargas1:
+                if st.session_state.pdf_plinea_listo is not None:
+                    st.download_button(
+                        label="Descargar Ticket Online",
+                        data=st.session_state.pdf_plinea_listo,
+                        file_name="Ticket_Clinica_PitDuncan_Online.pdf",
+                        mime="application/pdf"
+                    )
+
+            with col_descargas2:
+                if st.session_state.pdf_efectivo_listo is not None:    
+                    st.download_button(
+                        label="Descargar Orden de Pago",
+                        data=st.session_state.pdf_efectivo_listo,
+                        file_name="Orden_Pago_PitDuncan.pdf",
+                        mime="application/pdf"
+                    )
+
+        else:
+            st.info("El carrito esta vacio")
+
+def generar_ticket_pdf(carrito, total, tipo_pago, nombre_cliente="Cliente Mostrador"):
+    # Configuración básica del PDF (A4 vertical)
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # --- ENCABEZADO ---
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, "CLÍNICA PIT DUNCAN", ln=True, align='C')
+    
+    pdf.set_font("Arial", size=10)
+    pdf.cell(0, 5, "Ticket de Compra", ln=True, align='C')
+    fecha = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    pdf.cell(0, 5, f"Fecha: {fecha}", ln=True, align='C')
+    
+    pdf.ln(10) # Espacio vacio
+    
+    # --- DATOS DEL CLIENTE ---
+    pdf.set_font("Arial", 'B', 10)
+    pdf.cell(0, 5, f"Cliente: {nombre_cliente}", ln=True)
+    pdf.ln(5)
+
+    # --- TABLA DE PRODUCTOS ---
+    # Encabezados
+    pdf.set_fill_color(200, 200, 200)
+    pdf.cell(80, 8, "Producto", 1, 0, 'L', True)
+    pdf.cell(30, 8, "Cant.", 1, 0, 'C', True)
+    pdf.cell(40, 8, "Precio Unit.", 1, 0, 'R', True)
+    pdf.cell(40, 8, "Subtotal", 1, 1, 'R', True) # El 1, 1 al final hace el salto de línea
+    
+    # Filas del carrito
+    pdf.set_font("Arial", size=10)
+    for item in carrito:
+        nombre = item['producto']
+        # Recortamos el nombre si es muy largo para que no rompa el ticket
+        if len(nombre) > 35: 
+            nombre = nombre[:32] + "..."
+            
+        cant = str(item['cantidad a comprar'])
+        precio = f"${item['precio por unidad']:,.2f}"
+        sub = f"${item['subtotal']:,.2f}"
+        
+        pdf.cell(80, 8, nombre, 1)
+        pdf.cell(30, 8, cant, 1, 0, 'C')
+        pdf.cell(40, 8, precio, 1, 0, 'R')
+        pdf.cell(40, 8, sub, 1, 1, 'R')
+
+    # --- TOTAL ---
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(150, 10, "TOTAL A PAGAR:", 0, 0, 'R')
+    pdf.cell(40, 10, f"${total:,.2f}", 1, 1, 'R')
+
+    # --- MENSAJE CONDICIONAL (La parte importante) ---
+    pdf.ln(15)
+    pdf.set_font("Arial", 'B', 14)
+    
+    if tipo_pago == "Pago en linea":
+        pdf.set_text_color(0, 128, 0) # Verde
+        pdf.cell(0, 10, "ESTATUS: PAGADO", ln=True, align='C')
+        pdf.set_font("Arial", size=11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 6, "Instrucción: Muestre este ticket en la tienda para recibir sus productos. No es necesario realizar ningún pago adicional.", align='C')
+    else:
+        pdf.set_text_color(180, 0, 0) # Rojo oscuro
+        pdf.cell(0, 10, "ESTATUS: PENDIENTE DE PAGO", ln=True, align='C')
+        pdf.set_font("Arial", size=11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 6, "Instrucción: Pase a caja y presente este ticket para realizar el pago y recibir sus productos.", align='C')
+
+    # Retornar los bytes del PDF
+    return pdf.output(dest='S').encode('latin-1')
