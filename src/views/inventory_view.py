@@ -168,7 +168,11 @@ def comprar_medicina():
         nombres_medicamentos = []
         if len(resultado) > 0:
             df_stock = pd.DataFrame(resultado)
-            df_stock = df_stock[["nombre","descripcion","presentacion","marca","precio por unidad"]]
+            if "recetado" not in df_stock.columns:
+                df_stock["recetado"] = False
+            df_stock = df_stock[["nombre","descripcion","presentacion","marca","precio por unidad","recetado"]]
+            df_stock["recetado"] = df_stock["recetado"].apply(lambda x: "Verdadero" if x else "Falso")
+            df_stock.rename(columns={"recetado": "Recetado"}, inplace=True)
             nombres_medicamentos = df_stock["nombre"].tolist()
         else:
             df_stock = pd.DataFrame()
@@ -318,6 +322,7 @@ def comprar_medicina():
                             st.error("El CVV no es válido. Debe contener 3 dígitos numéricos.")
                         else:
                             i = inventario()
+                            exito_total = True
                             
                             for index,row in df_carrito.iterrows():
                                 prod = row['producto']
@@ -325,20 +330,19 @@ def comprar_medicina():
 
                                 resultado = i.min_stock(prod,canti)
 
-                                if resultado == True:
+                                if not resultado:
+                                    exito_total = False
+                                    st.error(f"Error al procesar su compra de {prod}, porfavor intentelo mas tarde.")
                                     
-                                    pdf_bytes_ln = generar_ticket_pdf(
-                                        carrito=st.session_state.carrito,
-                                        total=total,
-                                        tipo_pago="Pago en linea",
-                                    )
+                            if exito_total:
+                                pdf_bytes_ln = generar_ticket_pdf(
+                                    carrito=st.session_state.carrito,
+                                    total=total,
+                                    tipo_pago="Pago en linea",
+                                )
 
-                                    st.session_state.pdf_plinea_listo = pdf_bytes_ln
-                                    st.success("Compra realizada favor de descargar su ticket.")
-
-                                #st.session_state.carrito = []
-                                else:
-                                    st.error("Error al procesar su compra, porfavor intentelo mas tarde.")
+                                st.session_state.pdf_plinea_listo = pdf_bytes_ln
+                                st.success("Compra realizada favor de descargar su ticket.")
 
                 with pesta2:
                     btn_efe = st.form_submit_button("Hacer orden",key="btn_bajo")

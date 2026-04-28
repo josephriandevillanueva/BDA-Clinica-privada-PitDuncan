@@ -1,21 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* Fondo general de la app */
-.stApp {
-    background-color: #0a0e14;
-}
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background-color: #0d1117 !important;
-    border-right: 1px solid #1e2530;
-}
-section[data-testid="stSidebar"] * {
-    color: #a0aec0 !important;
-}
-
 /* Ocultar botones Streamlit fantasma (usados solo para navegación) */
-div[data-testid="stButton"].nav-hidden > button {
+div[data-testid="stButton"].nav-hidden>button {
     display: none !important;
 }
 
@@ -26,23 +12,26 @@ div[data-testid="stButton"].nav-hidden > button {
     gap: 20px;
     margin-top: 32px;
 }
+
 .action-card {
-    background: #111720;
-    border: 0.5px solid #1e2a3a;
+    background: var(--secondary-background-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 16px;
     padding: 28px 22px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
+
 .action-card:hover {
-    background: #141c28;
-    border-color: #2a3f5f;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-3px);
 }
+
 .card-icon {
     width: 52px;
     height: 52px;
@@ -52,46 +41,68 @@ div[data-testid="stButton"].nav-hidden > button {
     justify-content: center;
     font-size: 26px;
 }
-.icon-blue  { background: rgba(74,158,255,0.12); }
-.icon-green { background: rgba(32,201,151,0.12); }
-.icon-amber { background: rgba(251,191,36,0.12); }
+
+.icon-blue {
+    background: rgba(74, 158, 255, 0.12);
+}
+
+.icon-green {
+    background: rgba(32, 201, 151, 0.12);
+}
+
+.icon-amber {
+    background: rgba(251, 191, 36, 0.12);
+}
 
 .card-title {
     font-family: 'DM Sans', sans-serif;
     font-size: 17px;
     font-weight: 500;
-    color: #e2e8f0;
+    color: var(--text-color);
     margin: 0;
 }
+
 .card-desc {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin: 0;
     line-height: 1.5;
 }
+
 .card-arrow {
     font-size: 20px;
-    color: #2a3f5f;
+    color: var(--text-color);
+    opacity: 0.4;
     margin-top: 6px;
-    transition: color 0.2s;
+    transition: color 0.2s, opacity 0.2s;
 }
-.action-card:hover .card-arrow { color: #4a9eff; }
+
+.action-card:hover .card-arrow {
+    color: var(--primary-color);
+    opacity: 1;
+}
 
 /* Título principal */
 .main-title {
     font-family: 'Playfair Display', serif;
     font-size: 38px;
     font-weight: 700;
-    color: #f0f4ff;
+    color: var(--text-color);
     line-height: 1.15;
     margin: 0;
 }
-.main-title span { color: #4a9eff; }
+
+.main-title span {
+    color: var(--primary-color);
+}
+
 .main-subtitle {
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin-top: 8px;
 }
 
@@ -99,14 +110,16 @@ div[data-testid="stButton"].nav-hidden > button {
 .footer-bar {
     margin-top: 40px;
     padding-top: 16px;
-    border-top: 0.5px solid #1e2530;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
-    color: #2a3f5f;
+    color: var(--text-color);
+    opacity: 0.7;
     display: flex;
     align-items: center;
     gap: 8px;
 }
+
 .status-dot {
     width: 7px;
     height: 7px;
@@ -117,35 +130,43 @@ div[data-testid="stButton"].nav-hidden > button {
 
 /* Sidebar info card */
 .sidebar-info {
-    background: #111720;
-    border: 0.5px solid #1e2a3a;
+    background: var(--secondary-background-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 10px;
     padding: 16px;
     font-family: 'DM Sans', sans-serif;
 }
+
 .sidebar-info-title {
     font-size: 11px;
     font-weight: 500;
-    color: #4a9eff !important;
+    color: var(--primary-color) !important;
     letter-spacing: 0.07em;
     text-transform: uppercase;
     margin-bottom: 12px;
 }
-.sidebar-info-row { margin-bottom: 10px; }
+
+.sidebar-info-row {
+    margin-bottom: 10px;
+}
+
 .sidebar-info-label {
     font-size: 10px;
-    color: #4a5568 !important;
+    color: var(--text-color) !important;
+    opacity: 0.6;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
+
 .sidebar-info-val {
     font-size: 12px;
-    color: #a0aec0 !important;
+    color: var(--text-color) !important;
     line-height: 1.4;
 }
+
 .sidebar-info-link {
     font-size: 12px;
-    color: #4a9eff !important;
+    color: var(--primary-color) !important;
     text-decoration: none;
 }
 
@@ -154,16 +175,19 @@ div[data-testid="stButton"].nav-hidden > button {
     font-family: 'Playfair Display', serif;
     font-size: 38px;
     font-weight: 700;
-    color: #f0f4ff;
+    color: var(--text-color);
     line-height: 1.15;
     margin: 0 0 8px 0;
 }
+
 .admin-subtitle {
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin-bottom: 36px;
 }
+
 .admin-card-grid {
     display: grid;
     grid-template-columns: repeat(2, 340px);
@@ -171,44 +195,55 @@ div[data-testid="stButton"].nav-hidden > button {
     justify-content: center;
     margin-top: 40px;
 }
+
 .admin-card {
-    background: #111720;
-    border: 0.5px solid #1e2a3a;
+    background: var(--secondary-background-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 16px;
     padding: 32px 28px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
+
 .admin-card:hover {
-    background: #141c28;
-    border-color: #2a3f5f;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-3px);
 }
+
 .admin-card-title {
     font-family: 'DM Sans', sans-serif;
     font-size: 20px;
     font-weight: 500;
-    color: #e2e8f0;
+    color: var(--text-color);
     margin: 0;
 }
+
 .admin-card-desc {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin: 0;
     line-height: 1.5;
 }
+
 .admin-card-arrow {
     font-size: 20px;
-    color: #2a3f5f;
+    color: var(--text-color);
+    opacity: 0.4;
     margin-top: 10px;
-    transition: color 0.2s;
+    transition: color 0.2s, opacity 0.2s;
 }
-.admin-card:hover .admin-card-arrow { color: #4a9eff; }
+
+.admin-card:hover .admin-card-arrow {
+    color: var(--primary-color);
+    opacity: 1;
+}
 
 /* Botón volver esquina inferior derecha */
 .volver-wrapper {
@@ -217,24 +252,27 @@ div[data-testid="stButton"].nav-hidden > button {
     right: 40px;
     z-index: 999;
 }
+
 .volver-btn {
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
-    color: #4a5568;
-    background: #111720;
-    border: 0.5px solid #1e2a3a;
+    color: var(--text-color);
+    background: var(--secondary-background-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 10px;
     padding: 10px 20px;
     cursor: pointer;
     text-decoration: none;
-    transition: color 0.2s, border-color 0.2s;
+    transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
     display: flex;
     align-items: center;
     gap: 6px;
 }
+
 .volver-btn:hover {
-    color: #a0aec0;
-    border-color: #2a3f5f;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Medicos Styles */
@@ -242,16 +280,19 @@ div[data-testid="stButton"].nav-hidden > button {
     font-family: 'Playfair Display', serif;
     font-size: 38px;
     font-weight: 700;
-    color: #f0f4ff;
+    color: var(--text-color);
     line-height: 1.15;
     margin: 0 0 8px 0;
 }
+
 .medicos-subtitle {
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin-bottom: 36px;
 }
+
 .medicos-card-grid {
     display: grid;
     grid-template-columns: repeat(3, 300px);
@@ -259,41 +300,52 @@ div[data-testid="stButton"].nav-hidden > button {
     justify-content: center;
     margin-top: 40px;
 }
+
 .medico-card {
-    background: #111720;
-    border: 0.5px solid #1e2a3a;
+    background: var(--secondary-background-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 16px;
     padding: 28px 24px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
+
 .medico-card:hover {
-    background: #141c28;
-    border-color: #2a3f5f;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-3px);
 }
+
 .medico-card-title {
     font-family: 'DM Sans', sans-serif;
     font-size: 17px;
     font-weight: 500;
-    color: #e2e8f0;
+    color: var(--text-color);
     margin: 0;
 }
+
 .medico-card-desc {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
-    color: #4a5568;
+    color: var(--text-color);
+    opacity: 0.7;
     margin: 0;
     line-height: 1.5;
 }
+
 .medico-card-arrow {
     font-size: 20px;
-    color: #2a3f5f;
+    color: var(--text-color);
+    opacity: 0.4;
     margin-top: 8px;
-    transition: color 0.2s;
+    transition: color 0.2s, opacity 0.2s;
 }
-.medico-card:hover .medico-card-arrow { color: #4a9eff; }
+
+.medico-card:hover .medico-card-arrow {
+    color: var(--primary-color);
+    opacity: 1;
+}

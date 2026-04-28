@@ -46,7 +46,7 @@ class inventario:
             try:
                 cliente,colecciones = conectar(**connmongop)
                 cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre": "$nombre comercial","stock_total":1,"descripcion":1,"presentacion":1,
-                                                                    "marca":1,"precio por unidad":"$precio_por_unidad"}}])
+                                                                    "marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
 
                 res = list(cursor)
 
@@ -62,7 +62,7 @@ class inventario:
             try:
                 cliente,colecciones = conectar(**connmongop)
                 cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre":"$nombre comercial","descripcion":1,"presentacion":1,"marca":1,
-                                                                                "precio por unidad":"$precio_por_unidad"}}])
+                                                                                "recetado":1,"precio por unidad":"$precio_por_unidad"}}])
 
                 res = list(cursor)
 
@@ -80,7 +80,7 @@ class inventario:
             try:
                 cliente, colecciones = conectar(**connmongop)
                 cursor = colecciones['inventario'].aggregate([{"$match":{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}}},
-                    {"$project":{"_id":0,"nombre":"$nombre comercial","stock_total":1,"descripcion":1,"presentacion":1,"marca":1,"precio por unidad":"$precio_por_unidad"}}])
+                    {"$project":{"_id":0,"nombre":"$nombre comercial","stock_total":1,"descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
 
                 res = list(cursor)
 
@@ -96,7 +96,7 @@ class inventario:
             try:
                 cliente, colecciones = conectar(**connmongop)
                 cursor = colecciones['inventario'].aggregate([{"$match":{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}}},
-                    {"$project":{"_id":0,"nombre":"$nombre comercial","descripcion":1,"presentacion":1,"marca":1,"precio por unidad":"$precio_por_unidad"}}])
+                    {"$project":{"_id":0,"nombre":"$nombre comercial","descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
 
                 res = list(cursor)
 
