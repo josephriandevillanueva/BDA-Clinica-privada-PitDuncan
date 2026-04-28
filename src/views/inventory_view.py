@@ -208,7 +208,8 @@ def comprar_medicina():
                                     "marca": dato['marca'],
                                     "precio por unidad": precio,
                                     "cantidad a comprar": cant,
-                                    "subtotal": subtotal
+                                    "subtotal": subtotal,
+                                    "recetado": dato.get('recetado', False)
                             }
                             st.session_state.carrito.append(prod_carrito)
                         st.toast("Se agregó el producto al carrito.")
@@ -278,9 +279,12 @@ def comprar_medicina():
             st.markdown("---")
             st.subheader("Pagos")
             
-            # Subida de receta fuera del form para que no cause problemas con submits
-            st.write("**Receta Médica (Requerida si algún medicamento lo necesita)**")
-            receta_pdf = st.file_uploader("Sube tu receta en formato PDF", type=["pdf"])
+            requiere_receta = any(item.get("recetado") == True or str(item.get("recetado")).lower() == "true" for item in st.session_state.carrito)
+            receta_pdf = None
+
+            if requiere_receta:
+                st.warning("Obligatorio presentar una receta")
+                receta_pdf = st.file_uploader("Sube tu receta en formato PDF", type=["pdf"])
 
             with st.form("Pagos"):
                 pesta1,pesta2 = st.tabs(["Pago en linea","Pago en efectivo"])
@@ -304,7 +308,9 @@ def comprar_medicina():
                     btn_linea = st.form_submit_button("Pagar")
 
                     if btn_linea:
-                        if not (num_tarjeta.isdigit() and len(num_tarjeta) == 16):
+                        if requiere_receta and receta_pdf is None:
+                            st.error("Debe subir una receta médica para procesar la compra.")
+                        elif not (num_tarjeta.isdigit() and len(num_tarjeta) == 16):
                             st.error("Este número de tarjeta no es válido. Debe contener 16 dígitos numéricos.")
                         elif not nom_prop:
                             st.error("Favor de ingresar el nombre del propietario de la tarjeta.")
@@ -337,15 +343,17 @@ def comprar_medicina():
                 with pesta2:
                     btn_efe = st.form_submit_button("Hacer orden",key="btn_bajo")
                     if btn_efe:
-                                        
-                        pdf_bytes_efe = generar_ticket_pdf(
-                            carrito=st.session_state.carrito,
-                            total=total,
-                            tipo_pago="Pago en efectivo",
-                        )
+                        if requiere_receta and receta_pdf is None:
+                            st.error("Debe subir una receta médica para generar la orden.")
+                        else:
+                            pdf_bytes_efe = generar_ticket_pdf(
+                                carrito=st.session_state.carrito,
+                                total=total,
+                                tipo_pago="Pago en efectivo",
+                            )
 
-                        st.session_state.pdf_efectivo_listo = pdf_bytes_efe
-                        st.success("Orden generada, por favor descargar el PDF.")
+                            st.session_state.pdf_efectivo_listo = pdf_bytes_efe
+                            st.success("Orden generada, por favor descargar el PDF.")
 
             col_descargas1, col_descargas2 = st.columns(2)
         
