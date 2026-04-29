@@ -70,6 +70,33 @@ class users:
             print(f"ERROR: {e}")
             return []
 
+    def mostrar_medicos(self):
+        try:
+            cliente,colecciones = conectar(**connmongop)
+            # Assuming the personal collection stores doctor names in 'nombre' or similar field
+            # and perhaps filters by role if needed, but we'll fetch all or those with a specific role.
+            # We'll just fetch all documents from personal and assume they have a 'nombre' field
+            cursor = colecciones['personal'].find({}, {"_id": 0, "nombre": 1, "apellido paterno": 1, "apellido materno": 1})
+            
+            res = list(cursor)
+            
+            if not res:
+                return []
+            else:
+                nombres = []
+                for doc in res:
+                    nombre_completo = doc.get('nombre', 'Desconocido')
+                    if 'apellido paterno' in doc:
+                        nombre_completo += " " + doc['apellido paterno']
+                    if 'apellido materno' in doc:
+                        nombre_completo += " " + doc['apellido materno']
+                    nombres.append({"nombre": nombre_completo})
+                return nombres
+
+        except Exception as e:
+            print(f"ERROR: {e}")
+            return []
+
     def login(self,usuario,password):
         try:
             cliente,colecciones = conectar(**connmongop)

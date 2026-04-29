@@ -45,8 +45,8 @@ class inventario:
         if aux == True:
             try:
                 cliente,colecciones = conectar(**connmongop)
-                cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre": "$nombre comercial","stock_total":1,"descripcion":1,"presentacion":1,
-                                                                    "marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
+                cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre": {"$ifNull": ["$nombre comercial", "$nombre"]},"stock_total":1,"descripcion":1,"presentacion":1,
+                                                                    "marca":1,"recetado":1,"precio por unidad":{"$ifNull": ["$precio_por_unidad", "$precio por unidad"]}}}])
 
                 res = list(cursor)
 
@@ -61,8 +61,8 @@ class inventario:
         else:
             try:
                 cliente,colecciones = conectar(**connmongop)
-                cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre":"$nombre comercial","descripcion":1,"presentacion":1,"marca":1,
-                                                                                "recetado":1,"precio por unidad":"$precio_por_unidad"}}])
+                cursor = colecciones['inventario'].aggregate([{"$project": {"_id":0,"nombre": {"$ifNull": ["$nombre comercial", "$nombre"]},"descripcion":1,"presentacion":1,"marca":1,
+                                                                                "recetado":1,"precio por unidad":{"$ifNull": ["$precio_por_unidad", "$precio por unidad"]}}}])
 
                 res = list(cursor)
 
@@ -79,8 +79,8 @@ class inventario:
         if aux == True:
             try:
                 cliente, colecciones = conectar(**connmongop)
-                cursor = colecciones['inventario'].aggregate([{"$match":{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}}},
-                    {"$project":{"_id":0,"nombre":"$nombre comercial","stock_total":1,"descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
+                cursor = colecciones['inventario'].aggregate([{"$match":{"$or":[{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}},{"nombre":{"$regex":f"^{medicamento}","$options":"i"}}]}},
+                    {"$project":{"_id":0,"nombre":{"$ifNull":["$nombre comercial", "$nombre"]},"stock_total":1,"descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":{"$ifNull":["$precio_por_unidad", "$precio por unidad"]}}}])
 
                 res = list(cursor)
 
@@ -95,8 +95,8 @@ class inventario:
         else:
             try:
                 cliente, colecciones = conectar(**connmongop)
-                cursor = colecciones['inventario'].aggregate([{"$match":{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}}},
-                    {"$project":{"_id":0,"nombre":"$nombre comercial","descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":"$precio_por_unidad"}}])
+                cursor = colecciones['inventario'].aggregate([{"$match":{"$or":[{"nombre comercial":{"$regex":f"^{medicamento}","$options":"i"}},{"nombre":{"$regex":f"^{medicamento}","$options":"i"}}]}},
+                    {"$project":{"_id":0,"nombre":{"$ifNull":["$nombre comercial", "$nombre"]},"descripcion":1,"presentacion":1,"marca":1,"recetado":1,"precio por unidad":{"$ifNull":["$precio_por_unidad", "$precio por unidad"]}}}])
 
                 res = list(cursor)
 
@@ -113,8 +113,8 @@ class inventario:
         try:
             cliente, colecciones = conectar(**connmongop)
             cursor = colecciones['inventario'].aggregate([{"$match":{"stock_total":{"$gte":stok}}},
-                                                        {"$project":{"_id":0,"nombre":"$nombre comercial","stock_total":1,"descripcion":1,
-                                                        "presentacion":1,"marca":1,"precio por unidad":"precio_por_unidad"}}])
+                                                        {"$project":{"_id":0,"nombre":{"$ifNull":["$nombre comercial", "$nombre"]},"stock_total":1,"descripcion":1,
+                                                        "presentacion":1,"marca":1,"precio por unidad":{"$ifNull":["$precio_por_unidad", "$precio por unidad"]}}}])
 
             res = list(cursor)
 
@@ -131,8 +131,8 @@ class inventario:
         try:
             cliente, colecciones = conectar(**connmongop)
             cursor = colecciones['inventario'].aggregate([{"$match":{"stock_total":{"$lte":stok}}},
-                                                        {"$project":{"_id":0,"nombre":"$nombre comercial","stock_total":1,"descripcion":1,
-                                                        "presentacion":1,"marca":1,"precio por unidad":"precio_por_unidad"}}])
+                                                        {"$project":{"_id":0,"nombre":{"$ifNull":["$nombre comercial", "$nombre"]},"stock_total":1,"descripcion":1,
+                                                        "presentacion":1,"marca":1,"precio por unidad":{"$ifNull":["$precio_por_unidad", "$precio por unidad"]}}}])
 
             res = list(cursor)
 
@@ -172,7 +172,7 @@ class inventario:
         try:
             cliente,colecciones = conectar(**connmongop)
 
-            cursor = colecciones['inventario'].update_one({"nombre comercial":nombre},{"$inc":{"stock_total":-cantidad}})
+            cursor = colecciones['inventario'].update_one({"$or":[{"nombre comercial":nombre},{"nombre":nombre}]},{"$inc":{"stock_total":-cantidad}})
 
             return True
 

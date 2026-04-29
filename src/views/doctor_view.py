@@ -202,15 +202,15 @@ def generar_recetita():
         # Datalist de medicinas
         inv_service = inventario()
         lista_meds = inv_service.consultar_stock(False)
-        nombres_meds = [med.get('nombre', 'Sin Nombre') for med in lista_meds] if lista_meds else []
+        nombres_meds = [med.get('nombre') or 'Sin Nombre' for med in lista_meds] if lista_meds else []
         medicamentos_vinculados = st.multiselect("Medicamentos recetados (vinculación)", options=nombres_meds)
         
         tratamiento = st.text_area("Tratamiento/Instrucciones", height=300).strip()
         
         # Datalist de doctores
         user_service = users()
-        lista_users = user_service.mostrar_usuarios()
-        nombres_docs = [u.get('user', 'Desconocido') for u in lista_users] if lista_users else []
+        lista_users = user_service.mostrar_medicos()
+        nombres_docs = [u.get('nombre') or 'Desconocido' for u in lista_users] if lista_users else []
         doctor = st.selectbox("Doctor a cargo", options=[""] + nombres_docs)
 
         pdf = FPDF() #Creas el documento PDF
@@ -335,8 +335,8 @@ def generar_factura():
             
             # Datalist de doctores también en factura
             user_service = users()
-            lista_users = user_service.mostrar_usuarios()
-            nombres_docs = [u.get('user', 'Desconocido') for u in lista_users] if lista_users else []
+            lista_users = user_service.mostrar_medicos()
+            nombres_docs = [u.get('nombre') or 'Desconocido' for u in lista_users] if lista_users else []
             doctor = st.selectbox("Médico Tratante", options=[""] + nombres_docs)
             
             concepto = st.text_input("Descripción del Servicio").strip()
@@ -378,10 +378,11 @@ def generar_factura():
             pdf.set_font("Arial", size=10)
             pdf.set_text_color(0, 0, 0)
             pdf.cell(0, 5, f"Folio: {folio}  |  Fecha: {fecha_str}", ln=True, align='R')
+            pdf.cell(0, 5, f"Lugar de Expedición: Boca del Rio, Veracruz", ln=True, align='R')
 
-            pdf.line(10, 60, 200, 60)
+            pdf.line(10, 65, 200, 65)
 
-            y_bloques = 70
+            y_bloques = 75
             
             pdf.set_xy(10, y_bloques)
             pdf.set_font("Arial", 'B', 11)
