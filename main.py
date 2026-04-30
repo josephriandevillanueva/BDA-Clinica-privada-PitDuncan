@@ -160,17 +160,9 @@ def main():
             st.rerun()
 
     elif st.session_state['vista_actual'] == 'formulario_inv1':
-        aux1 = True
-        menu_inv(aux1)
+        menu_inv()
         if st.button("Volver al Menú", key="volver_inv1"):
             st.session_state['vista_actual'] = 'menu_admin'
-            st.rerun()
-
-    elif st.session_state['vista_actual'] == 'formulario_inv2':
-        aux2 = False
-        menu_inv(aux2)
-        if st.button("Volver al Menú", key="volver_inv2"):
-            st.session_state['vista_actual'] = 'menu_medicos'
             st.rerun()
 
     # ── Menú Admin ─────────────────────────────────────────────────────────────
@@ -218,11 +210,6 @@ def main():
             <a href="?vista=crear_factura" class="medico-card" target="_self">
                 <p class="medico-card-title">Generar Factura</p>
                 <p class="medico-card-desc">Emite facturas para consultas y servicios médicos</p>
-                <div class="medico-card-arrow">→</div>
-            </a>
-            <a href="?vista=formulario_inv2" class="medico-card" target="_self">
-                <p class="medico-card-title">Inventario</p>
-                <p class="medico-card-desc">Consulta el stock y certificaciones de la clínica</p>
                 <div class="medico-card-arrow">→</div>
             </a>
             <a href="?vista=formulario_cita2" class="medico-card" target="_self">

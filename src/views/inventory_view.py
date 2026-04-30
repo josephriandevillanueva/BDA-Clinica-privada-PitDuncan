@@ -5,7 +5,7 @@ from src.services.inventario import inventario
 from fpdf import FPDF
 import datetime
 
-def menu_inv(verficacion):
+def menu_inv():
     st.title("Inventario")
 
     pes1, pes2, pes3 = st.tabs(["Stock", "Certificaciones","Ingresar material"])
@@ -93,63 +93,60 @@ def menu_inv(verficacion):
             st.warning("No hay certificaciones que mostrar.")
 
     with pes3:
-        if verficacion:
-            st.header("Registrar medicamento.")
-            with st.form("formulario_medicina"):
-                recet = ["Si","No"]
-                diccionario = {
-                    "Si":True,
-                    "No":False
-                }
-                st.write("Datos del medicamento")
+        st.header("Registrar medicamento.")
+        with st.form("formulario_medicina"):
+            recet = ["Si","No"]
+            diccionario = {
+                "Si":True,
+                "No":False
+            }
+            st.write("Datos del medicamento")
 
-                colnom,colsus = st.columns(2)
-                with colnom:
-                    nombre = st.text_input("Ingrese el nombre del medicamento.").strip()
-                    descripcion = st.text_input("Descripción").strip()
-                    unidad = st.text_input("Unidad de medida (ej:caja,frasco,etc.)").strip()
-                    cod_b = st.text_input("Codigo de barras").strip()
-                    stock_t = st.number_input("Stock total")
-                with colsus:
-                    sustancia = st.text_input("Ingrese el nombre de la sustancia activa.").strip()
-                    presentacion = st.text_input("Presentacion (ej: Frasco con 60 tabletas.)").strip()
-                    marca = st.text_input("Marca").strip()
-                    recetado = st.selectbox("Necesita receta",recet)
-                    recetado_fin = diccionario[recetado]
-                    precio = st.number_input("Precio por unidad")
+            colnom,colsus = st.columns(2)
+            with colnom:
+                nombre = st.text_input("Ingrese el nombre del medicamento.").strip()
+                descripcion = st.text_input("Descripción").strip()
+                unidad = st.text_input("Unidad de medida (ej:caja,frasco,etc.)").strip()
+                cod_b = st.text_input("Codigo de barras").strip()
+                stock_t = st.number_input("Stock total")
+            with colsus:
+                sustancia = st.text_input("Ingrese el nombre de la sustancia activa.").strip()
+                presentacion = st.text_input("Presentacion (ej: Frasco con 60 tabletas.)").strip()
+                marca = st.text_input("Marca").strip()
+                recetado = st.selectbox("Necesita receta",recet)
+                recetado_fin = diccionario[recetado]
+                precio = st.number_input("Precio por unidad")
 
-                st.write("Datos del Lote")
-                hoy = datetime.date.today()
-                clot,fccol,cntcol = st.columns(3)
-                with clot:
-                    cod_lot = st.text_input("Codigo de lote").strip()
-                with fccol:
-                    fecha_cad = st.date_input("Fecha de caducidad",value=hoy,min_value=hoy,format="DD/MM/YYYY")
-                with cntcol:
-                    cnt_dis = st.text_input("Cantidad disponible").strip()
+            st.write("Datos del Lote")
+            hoy = datetime.date.today()
+            clot,fccol,cntcol = st.columns(3)
+            with clot:
+                cod_lot = st.text_input("Codigo de lote").strip()
+            with fccol:
+                fecha_cad = st.date_input("Fecha de caducidad",value=hoy,min_value=hoy,format="DD/MM/YYYY")
+            with cntcol:
+                cnt_dis = st.text_input("Cantidad disponible").strip()
 
-                st.write("Datos del proveedor")
-                colprov, colempro = st.columns(2)
-                with colprov:
-                    prov = st.text_input("Nombre del Proveedor").strip()
-                with colempro:
-                    em_prov = st.text_input("Email proveedor").strip()
+            st.write("Datos del proveedor")
+            colprov, colempro = st.columns(2)
+            with colprov:
+                prov = st.text_input("Nombre del Proveedor").strip()
+            with colempro:
+                em_prov = st.text_input("Email proveedor").strip()
 
-                btn_insert = st.form_submit_button("Insertar medicamento.")
-                if btn_insert:
-                    if cod_b.isdigit() and nombre and descripcion and unidad and cod_b and stock_t and sustancia and presentacion and marca and recetado and precio:
-                        i = inventario()
-                        resultado = i.agregar_medicamento(nombre,sustancia,descripcion,presentacion,marca,cod_b,recet,recetado_fin,stock_t,unidad,precio, 
-                                                            cod_lot,fecha_cad,cnt_dis,prov,em_prov)
+            btn_insert = st.form_submit_button("Insertar medicamento.")
+            if btn_insert:
+                if cod_b.isdigit() and nombre and descripcion and unidad and cod_b and stock_t and sustancia and presentacion and marca and recetado and precio:
+                    i = inventario()
+                    resultado = i.agregar_medicamento(nombre,sustancia,descripcion,presentacion,marca,cod_b,recet,recetado_fin,stock_t,unidad,precio, 
+                                                        cod_lot,fecha_cad,cnt_dis,prov,em_prov)
 
-                        if resultado==True:
-                            st.success("Medicamento agregado de forma exitosa.")
-                        else:
-                            st.error("No se puedo agregar el medicamento")
+                    if resultado==True:
+                        st.success("Medicamento agregado de forma exitosa.")
                     else:
-                        st.warning("Favor de llenar los campos de forma correcta.")
-        else:
-            st.write("Lo siento este apartado solo esta disponible para administradores.")
+                        st.error("No se puedo agregar el medicamento")
+                else:
+                    st.warning("Favor de llenar los campos de forma correcta.")
 
 def comprar_medicina():
     if 'carrito' not in st.session_state:
