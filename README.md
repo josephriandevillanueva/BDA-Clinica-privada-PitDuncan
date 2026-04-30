@@ -1,30 +1,54 @@
-# BDA-Clinica-privada-PitDuncan
-Proyecto de Base de Datos Avanzadas (BDA) desarrollado por Joseph Riande Villanueva y Jonathan Garcia Lopez.
+# Clínica Pit Duncan - Pharmacy & Clinic Management System
 
-## Objetivo del Proyecto
-El sistema es una **Plataforma de Gestión Integrada de Clínica Privada** (Clínica Pit Duncan) construida con Python y la librería Streamlit. Su objetivo es gestionar eficientemente todas las operaciones del negocio y agilizar el control administrativo/médico integrándose a una base de datos centralizada. Permite desde la atención al público en general (reservar citas y comprar medicinas) hasta la gestión interna a través de una sólida división de roles (Administrador y Médico).
+## Arquitectura del Proyecto (Architecture Style)
+El proyecto utiliza una arquitectura de **Cliente-Servidor (Frontend/Backend separados)** bajo el patrón **RESTful API** en un enfoque **Modular**.
+Al desacoplar el Frontend del Backend, la aplicación es más segura, altamente escalable y permite un desarrollo concurrente.
+Se utiliza una utilidad personalizada (`run.py`) en la raíz para iniciar ambos servidores de manera simultánea en entornos de desarrollo local.
 
-## Estructura Avanzada del Proyecto
+---
 
-- **🎛️ Punto de Entrada y Ruteo (`test.py`)**
-  Archivo principal que orquesta toda la aplicación Streamlit, establece los estilos gráficos globales (CSS custom) y maneja el estado de la sesión (`st.session_state`) para la navegación dinámica entre menús interactivos.
+## 💻 Tech Stack & Frameworks
 
-- **🔐 Autenticación y Seguridad (`interfaz_login.py`, `user_streamlit.py`)**
-  Gestión de inicio de sesión seguro, validación de perfiles y habilitación de los permisos correspondientes (Admin vs Médicos).
+### Frontend (El "Cliente")
+- **Framework**: Angular 17+ (Utilizando *Standalone Components* y la nueva sintaxis de Control Flow `@if` / `@for` para máximo rendimiento y menos código boilerplate).
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS (Actualmente cargado para prototipado rápido; se encarga del esquema de diseño "Rich Aesthetics").
+- **Gestión de Estado**: Servicios inyectables en Angular (`@Injectable`) apoyados por `localStorage` temporal (Ej: `CartService` para persistencia efímera a través de las pestañas sin abusar de llamadas a la base de datos).
+- **Comunicación HTTP**: `HttpClient` de Angular para consumo de API REST.
 
-- **👥 Paneles de Control por Roles:**
-  - `interfaces_menu_admin.py`: Dashboard de administración con altos privilegios (gestión de usuarios e inventarios globales).
-  - `interfaces_menu_doc.py`: Portal de trabajo de los médicos para acceder a los módulos de pacientes, recetarios y facturación.
-  - `interfaces_menu_inv.py`: Vistas exclusivas para operaciones logísticas y de inventario.
+### Backend (El "Servidor")
+- **Framework**: FastAPI (Elegido por su altísimo rendimiento asíncrono y generación automática de documentación Swagger UI).
+- **Lenguaje**: Python 3.x
+- **Validación de Datos**: Pydantic v2 (Fuerza esquemas estrictos de validación en las entradas/salidas de los endpoints).
+- **Autenticación y Seguridad**: `python-jose` (para tokens JWT), `passlib` con `bcrypt` (para el hasheo criptográfico de contraseñas de usuarios). *En preparación para la Fase 3*.
 
-- **📅 Gestión de Atención Clínica (`citas.py`, `interfaz_citas.py`, `pacientes.py`)**
-  Manejo completo del ciclo de vida del paciente: captación de un visitante, conversión a paciente, registro hospitalario y agendamiento de su consulta médica.
+### Base de Datos & Persistencia
+- **Motor de Base de Datos**: MongoDB (Base de datos NoSQL alojada en **MongoDB Atlas**).
+- **Driver de Conexión**: `motor` (El driver oficial asíncrono de MongoDB para Python, lo cual evita que la base de datos bloquee las demás peticiones web).
+- **Lógica de Conexión**: Administrada mediante el sistema de eventos `lifespan` de FastAPI (se conecta al iniciar el servidor, y destruye la conexión limpiamente al apagarlo).
 
-- **💊 Inventario y Farmacia (`inventario.py`)**
-  Control total sobre el stock, insumos médicos y punto de venta del catálogo en línea de medicinas.
+---
 
-- **🧾 Facturación y Prescripciones (`facturas.py`, enrutado de recetas)**
-  Automatización en la emisión de cobros por servicios médicos otorgados y de recetas.
+## 📂 Estructura de Directorios
 
-- **⚙️ Conexión de Base de Datos (`conectar_clinica.py`)**
-  Lógica de conectores, cursores y ejecución de querys responsables de comunicar al backend con el sistema gestor de bases de datos avanzadas.
+```text
+PitDuncan/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── routes/      # Endpoints (inventory.py, etc)
+│   │   ├── models/          # Modelos estrictos de Pydantic (inventory.py, patient.py, etc)
+│   │   ├── db.py            # Singleton de conexión a MongoDB
+│   │   └── main.py          # Entrypoint de FastAPI y configuración de CORS
+│   └── .env                 # Variables de entorno y Connection Strings
+│
+├── frontend/
+│   ├── src/app/
+│   │   ├── components/      # Componentes Standalone de Angular (store, cart, home, etc)
+│   │   ├── models/          # Interfaces TypeScript
+│   │   ├── services/        # Lógica de negocio (api.service.ts, cart.service.ts)
+│   │   ├── app.component.*  # Shell principal y Navbar
+│   │   └── app.routes.ts    # Enrutador
+│
+└── run.py                   # Script de orquestación de desarrollo (Inicia Uvicorn + NG Serve)
+```

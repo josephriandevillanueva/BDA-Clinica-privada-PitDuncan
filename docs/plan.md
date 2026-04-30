@@ -78,3 +78,8 @@ To ensure perfect alignment with requirements, every phase will follow a strict 
 ## Phase 8: Final Polish & Deployment Preparation
 - **Plan**: Conduct a full walkthrough of all workflows.
 - **Implement**: Smooth out animations, enhance error states, ensure responsive design (mobile-friendly), and prepare the build scripts.
+
+# USER TIDBITS: 
+- It is preferable to download all minimized files for each external framework to minimize the number of break points (i.e. Angular servers down or Icons external servers down etc)
+- First build functionality, then we will see some theme options for the final product to implement to the Tailwind CSS
+- regenerate logo3.png ??? ← think about it 
