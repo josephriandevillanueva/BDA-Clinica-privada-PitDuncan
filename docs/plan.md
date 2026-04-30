@@ -1,29 +1,80 @@
-# Plan de Implementación (Cambios de Base de Datos)
+# Pit Duncan: Refactoring & Architecture Plan
 
-Este plan abarca las tareas mencionadas en `overhaul.md` que requieren modificaciones en la estructura de la Base de Datos (MongoDB) y en la lógica del backend profundo.
+This document outlines the step-by-step strategy to transition the Pit Duncan application from its current Streamlit mockup into a fully-fledged, secure, and modern web application using **FastAPI**, **MongoDB**, and **Angular + Tailwind CSS**.
 
-## 1. GESTIÓN DE RECETAS
+## Core Strategy: The Iterative Loop
+To ensure perfect alignment with requirements, every phase will follow a strict cycle:
+1. **Plan**: Outline the architectural scope and requirements for the phase.
+2. **Ask**: Present the plan to stakeholders for feedback, clarification, and approval.
+3. **Implement**: Execute the code generation, testing, and integration.
+4. *(Repeat until complete)*
 
-### 1.1 Vincular medicamentos con recetas
-**Problema:** Actualmente las recetas son probablemente texto libre o no están estructuradas para referenciar los IDs de los medicamentos en inventario.
-**Solución en BD:** 
-- Modificar el modelo/colección de `Recetas`.
-- Agregar un arreglo de objetos `medicamentos` que contengan el `medicamento_id` (referencia a la colección `inventario`), `cantidad` y `dosis`.
+---
 
-### 1.2 Validar recetas y firma digital
-**Problema:** No hay forma de validar la autenticidad de una receta.
-**Solución en BD:**
-- Agregar un campo `estado_validacion` (ej. 'pendiente', 'validada', 'rechazada') a `Recetas`.
-- Agregar campos `firma_digital` y `hash_receta` para almacenar la firma criptográfica generada en la emisión.
-- Crear una nueva colección `SecretosFirma` o añadir atributos protegidos a los Doctores en la colección `personal` para guardar sus llaves privadas/públicas con encriptación simétrica.
+## Step 0: The Clean Slate
+- **Action**: Delete the current `src/` folder and `main.py`.
+- **Action**: Initialize the new repository architecture with clear separation of concerns (e.g., `backend/` for FastAPI, `frontend/` for Angular).
 
-### 1.3 Medicina con receta obligatoria
-**Problema:** La tienda no sabe qué medicinas exigen receta para su compra.
-**Solución en BD:**
-- Agregar un campo booleano `requiere_receta` (true/false) en la colección `inventario`.
-- Al realizar el pago, si la orden contiene un producto con `requiere_receta = true`, el sistema debe exigir subir el archivo o relacionar el ID de la receta en la orden.
+---
 
-## Pasos para la implementación posterior:
-1. Actualizar esquemas de validación de inserción si se están usando validadores de MongoDB, o bien los modelos Pydantic/Diccionarios en Python.
-2. Migrar o actualizar los documentos existentes (ej. agregar `requiere_receta = False` a todo el inventario actual para mantener retrocompatibilidad temporalmente).
-3. Implementar la librería de encriptación (ej. `cryptography` o `PyJWT`) para la generación y validación de las firmas digitales.
+## Phase 1: Infrastructure & Secrets Management
+- **Plan**: Define the environment configuration strategy to secure sensitive data (MongoDB connection strings, JWT secrets).
+- **Implement**: Set up `.env` loaders in Python (e.g., `pydantic-settings`), configure `.gitignore`, and ensure no secrets are hardcoded in the repository. *(This fulfills the low-priority goal of learning AI secrets management early on).*
+
+---
+
+## Phase 2: Database Schema Expansion & Unification
+- **Plan**: Map the existing MongoDB schema (`migration_report.md`) to strict backend models (using Pydantic or Beanie) and add new architectural requirements.
+- **Implement**:
+  - **New Collection (`DocumentRegistry` / `Secrets`)**: A centralized ledger to track all produced PDFs (Prescriptions, Invoices, Tickets).
+  - **State Tracking**: Add `is_used` or `status` fields to prescriptions to ensure a medicine can only be purchased once per prescription.
+  - **Unified Users**: Standardize the `usuarios` collection to use strict Role-Based Access Control (`role: "ADMIN" | "DOCTOR" | "PATIENT"`).
+
+---
+
+## Phase 3: Backend Authentication & RBAC
+- **Plan**: Design the unified login workflow and security dependencies.
+- **Implement**:
+  - Build the login endpoint to issue secure JSON Web Tokens (JWT).
+  - Create FastAPI dependencies (the equivalent of Java's `@RolesAllowed`) to aggressively protect routes (`@require_role("ADMIN")`).
+
+---
+
+## Phase 4: Secure Document Generation & Validation (Steganography)
+- **Plan**: Design the PDF generation engine and the anti-forgery validation mechanism.
+- **Implement**:
+  - Centralize all PDF generation into a single, scalable service to unify the document aesthetics.
+  - **Functional Steganography**: Embed a unique cryptographic hash or an invisible, encrypted text block into every generated PDF. This hash maps directly to the `DocumentRegistry` collection.
+  - **Validation Endpoint**: Build an endpoint that accepts PDF uploads (e.g., when a patient buys restricted medicine), extracts the hidden steganographic key, queries the database, and validates whether the prescription is authentic, belongs to the patient, and hasn't been redeemed yet.
+
+---
+
+## Phase 5: Core API Endpoints (CRUD)
+- **Plan**: Map out the RESTful routes required by the frontend.
+- **Implement**:
+  - `GET /api/inventory`, `POST /api/inventory` (Admin)
+  - `GET /api/patients`, `POST /api/patients` (Doctors)
+  - `POST /api/appointments` (Public & Doctors)
+
+---
+
+## Phase 6: Frontend Foundation (Angular + Tailwind CSS)
+- **Plan**: Establish the design system and application shell.
+- **Implement**:
+  - Setup the Angular workspace.
+  - Configure Tailwind CSS with a curated, appealing, and highly professional color palette.
+  - **UX Unification**: Build highly reusable, unified UI components (e.g., standardized datalists with search, unified data tables, standardized modal forms) so Admins, Doctors, and Patients all experience the exact same high-quality interface patterns.
+
+---
+
+## Phase 7: Frontend Integration (Role by Role)
+- **Plan & Implement Loop**:
+  1. **Public / Buyers**: Build the eCommerce pharmacy experience, shopping cart, online/cash payment flows, and the PDF upload/validation UX.
+  2. **Doctors**: Build the dashboard for patient management, medical history, dynamic prescription issuing, and billing.
+  3. **Admins**: Build the dashboard for user management and comprehensive inventory control.
+
+---
+
+## Phase 8: Final Polish & Deployment Preparation
+- **Plan**: Conduct a full walkthrough of all workflows.
+- **Implement**: Smooth out animations, enhance error states, ensure responsive design (mobile-friendly), and prepare the build scripts.
