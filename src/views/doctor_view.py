@@ -222,7 +222,7 @@ def generar_recetita():
         pdf.set_xy(60,15) #Mueves el cursor o el lapiz por llamarle de alguna forma a ciertas coordenadas (x,y)
         #Los primeros numeros son para indicar que tan grande quieres la caja que va a contener el texto, ln es para hacer un salto de linea para que el siguiente
         #texto quede abajo y no al lado, align para alinea ya sea izquierda(como es este caso), centro o derecha.
-        pdf.cell(200, 3, txt="Clinica Privada Pit Ducan", ln=True, align='L')
+        pdf.cell(200, 3, txt="Clinica Privada Pit Duncan", ln=True, align='L')
         pdf.set_xy(75,30)
         pdf.cell(200, 3, txt="Receta Medica", ln=True, align='L')
 
@@ -363,7 +363,7 @@ def generar_factura():
             pdf.set_font("Arial", 'B', 16)
             pdf.set_text_color(44, 62, 80)
             pdf.set_xy(10, 15)
-            pdf.cell(0, 10, "CLÍNICA PRIVADA PIT DUCAN", ln=True)
+            pdf.cell(0, 10, "CLÍNICA PRIVADA PIT DUNCAN", ln=True)
             
             pdf.set_font("Arial", size=9)
             pdf.set_text_color(0, 0, 0)

@@ -311,6 +311,8 @@ def comprar_medicina():
                     if btn_linea:
                         if requiere_receta and receta_pdf is None:
                             st.error("Debe subir una receta médica para procesar la compra.")
+                        elif requiere_receta and "receta" not in receta_pdf.name.lower():
+                            st.error("El archivo subido no es una receta valida de la clínica.")
                         elif not (num_tarjeta.isdigit() and len(num_tarjeta) == 16):
                             st.error("Este número de tarjeta no es válido. Debe contener 16 dígitos numéricos.")
                         elif not nom_prop:
@@ -346,6 +348,8 @@ def comprar_medicina():
                     if btn_efe:
                         if requiere_receta and receta_pdf is None:
                             st.error("Debe subir una receta médica para generar la orden.")
+                        elif requiere_receta and "receta" not in receta_pdf.name.lower():
+                            st.error("El nombre del archivo PDF debe contener la palabra 'Receta'.")
                         else:
                             pdf_bytes_efe = generar_ticket_pdf(
                                 carrito=st.session_state.carrito,
